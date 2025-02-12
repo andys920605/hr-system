@@ -9,13 +9,14 @@ import (
 
 	"github.com/andys920605/hr-system/pkg/conf"
 	"github.com/andys920605/hr-system/pkg/errors"
+	"github.com/andys920605/hr-system/pkg/migration"
 )
 
 type Client struct {
 	*gorm.DB
 }
 
-func NewClient(config conf.Config) (*Client, error) {
+func NewClient(config *conf.Config) (*Client, error) {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&readTimeout=30s&writeTimeout=30s",
 		config.MySQL.Username, config.MySQL.Password, config.MySQL.Host, config.MySQL.Port, config.MySQL.Database)
 
@@ -40,6 +41,10 @@ func NewClient(config conf.Config) (*Client, error) {
 
 	if err = sqlDB.Ping(); err != nil {
 		return nil, errors.Wrapf(err, "error pinging database")
+	}
+
+	if err := migration.AutoMigrate(gormDB); err != nil {
+		return nil, errors.Wrap(err, "auto migration")
 	}
 
 	return &Client{gormDB}, nil

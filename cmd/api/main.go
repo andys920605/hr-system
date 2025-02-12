@@ -17,6 +17,7 @@ func main() {
 
 	// handler
 	healthHandler := handler.NewHealthHandler()
+	EmployeeHandler := handler.NewEmployeeHandler(i.EmployeeAppService)
 
 	// api server
 	server := http.NewServer(i.Logger, i.Config.Server.Name)
@@ -35,6 +36,7 @@ func main() {
 	server.RegisterRouter(router.NewRouter(
 		interceptorHandler,
 		healthHandler,
+		EmployeeHandler,
 	))
 	server.Run(i.Config.Server.Port)
 }

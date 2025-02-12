@@ -13,16 +13,19 @@ type Router struct {
 	interceptorHandler gin.HandlerFunc
 
 	// handler
-	healthHandler *handler.HealthHandler
+	healthHandler   *handler.HealthHandler
+	employeeHandler *handler.EmployeeHandler
 }
 
 func NewRouter(
 	interceptorHandler gin.HandlerFunc,
 	healthHandler *handler.HealthHandler,
+	employeeHandler *handler.EmployeeHandler,
 ) *Router {
 	return &Router{
 		interceptorHandler: interceptorHandler,
 		healthHandler:      healthHandler,
+		employeeHandler:    employeeHandler,
 	}
 }
 
@@ -35,6 +38,5 @@ func (r *Router) Register(engine *gin.Engine) {
 	// middleware
 	normal := engine.Group("/srv", r.interceptorHandler)
 
-	normal.GET("/healthz", r.healthHandler.Check)
-
+	normal.POST("/employees", r.employeeHandler.Create)
 }
