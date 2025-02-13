@@ -77,8 +77,9 @@ func initMysqlClient(config *conf.Config, logger *logging.Logging) *mysqlx.Clien
 }
 
 func initRedisClusterClient(config *conf.Config, logger *logging.Logging) *redis.ClusterClient {
+	logger.Info(config.Redis.Cluster.Addr + ":" + config.Redis.Cluster.Port)
 	client := redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs: []string{config.Redis.Cluster.Addr},
+		Addrs: []string{config.Redis.Cluster.Addr + ":" + config.Redis.Cluster.Port},
 	})
 	if _, err := client.Ping(context.Background()).Result(); err != nil {
 		logger.Emergencyf("failed to initialize redis cluster client: %v", err)

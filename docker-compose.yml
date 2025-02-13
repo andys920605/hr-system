@@ -7,10 +7,10 @@ services:
     environment:
       - IP=0.0.0.0
       - CLUSTER_ONLY=true
-    ports:
-      - "7000-7005:7000-7005"
-    restart: unless-stopped
+      - CLUSTER_ANNOUNCE_IP=127.0.0.1
+      - CLUSTER_ANNOUNCE_PORT=7000
     network_mode: host
+    restart: unless-stopped
 
   mysql:
     image: mysql:8.4.4
@@ -18,10 +18,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: hr
-    ports:
-      - "3306:3306"
-    restart: unless-stopped
     network_mode: host
+    restart: unless-stopped
 
   app:
     build:
@@ -31,8 +29,8 @@ services:
     depends_on:
       - redis-cluster
       - mysql
-    ports:
-      - "8080:8080"  # 根據你的應用程式修改端口
+    # 在 host 模式下，ports 選項會被忽略，但只要 API Server 綁定在 0.0.0.0:8080，
+    # 主機上的 127.0.0.1:8080 就能直接訪問到
     environment:
       - SERVER_NAME=hr-system-local
       - SERVER_PORT=8080
@@ -45,8 +43,8 @@ services:
       - MYSQL_DATABASE=hr
       - MYSQL_MaxIdle=5
       - MYSQL_MaxOpen=10
-      - REDIS_CLUSTER_ADDR=127.0.0.1:7000
-    command: ["./api_server"]
-    restart: unless-stopped
-
+      - REDIS_CLUSTER_ADDR=127.0.0.1
+      - REDIS_CLUSTER_PORT=7000
+    command: ["/bin/sh", "-c", "sleep 10 && ./api_server"]
     network_mode: host
+    restart: unless-stopped

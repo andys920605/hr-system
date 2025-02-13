@@ -30,6 +30,7 @@ type Config struct {
 	Redis struct {
 		Cluster struct {
 			Addr string `validate:"required"`
+			Port string `validate:"required"`
 		}
 	}
 }

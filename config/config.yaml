@@ -16,3 +16,4 @@ mysql:
 redis:
   cluster:
     addr:
+    port:

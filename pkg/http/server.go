@@ -60,7 +60,7 @@ func (s *Server) RegisterRouter(router Router) {
 // Run runs the HTTP server.
 func (s *Server) Run(port string) {
 	httpServer := &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
+		Addr:    fmt.Sprintf("0.0.0.0:%s", port),
 		Handler: s.ginEngine,
 	}
 
