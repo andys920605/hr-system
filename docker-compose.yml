@@ -7,9 +7,12 @@ services:
     environment:
       - IP=0.0.0.0
       - CLUSTER_ONLY=true
-      - CLUSTER_ANNOUNCE_IP=127.0.0.1
+      - CLUSTER_ANNOUNCE_IP=redis-cluster  
       - CLUSTER_ANNOUNCE_PORT=7000
-    network_mode: host
+    ports:
+      - "7000-7005:7000-7005"
+    networks:
+      - my_network
     restart: unless-stopped
 
   mysql:
@@ -18,7 +21,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: hr
-    network_mode: host
+    ports:
+      - "3306:3306"
+    networks:
+      - my_network
     restart: unless-stopped
 
   app:
@@ -29,22 +35,27 @@ services:
     depends_on:
       - redis-cluster
       - mysql
-    # 在 host 模式下，ports 選項會被忽略，但只要 API Server 綁定在 0.0.0.0:8080，
-    # 主機上的 127.0.0.1:8080 就能直接訪問到
+    ports:
+      - "8080:8080"
     environment:
       - SERVER_NAME=hr-system-local
       - SERVER_PORT=8080
       - SERVER_VERSION=v0.0.0
       - LOG_LEVEL=debug
-      - MYSQL_HOST=127.0.0.1
+      - MYSQL_HOST=mysql-local
       - MYSQL_PORT=3306
       - MYSQL_USERNAME=root
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=hr
       - MYSQL_MaxIdle=5
       - MYSQL_MaxOpen=10
-      - REDIS_CLUSTER_ADDR=127.0.0.1
+      - REDIS_CLUSTER_ADDR=redis-cluster
       - REDIS_CLUSTER_PORT=7000
     command: ["/bin/sh", "-c", "sleep 10 && ./api_server"]
-    network_mode: host
+    networks:
+      - my_network
     restart: unless-stopped
+
+networks:
+  my_network:
+    driver: bridge
