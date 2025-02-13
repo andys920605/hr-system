@@ -21,3 +21,7 @@ func (t Status) String() string {
 		return "Unknown"
 	}
 }
+
+func (t Status) IsEmployed() bool {
+	return t == Active
+}

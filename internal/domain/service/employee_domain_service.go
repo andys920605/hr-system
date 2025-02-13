@@ -43,3 +43,16 @@ func (s *EmployeeDomainService) Create(ctx context.Context, cmd message.CreateEm
 
 	return nil
 }
+
+func (s *EmployeeDomainService) GetActiveEmployeeByID(ctx context.Context, query message.GetActiveEmployeeByIDQuery) (*employee.Employee, error) {
+	_employee, err := s.employeeRepository.GetByID(ctx, query.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "get by id")
+	}
+
+	if !_employee.Status.IsEmployed() {
+		return nil, errors.EmployeeAlreadyResigned.New("employee status check")
+	}
+
+	return _employee, nil
+}

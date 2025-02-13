@@ -11,3 +11,6 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates
 COPY --from=builder /workspace/build/* ./
 COPY --from=builder /workspace/config ./config
+COPY --from=builder /workspace/pkg/migration ./pkg/migration
+
+

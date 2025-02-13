@@ -8,3 +8,7 @@ type CreateEmployeeCommand struct {
 	Level    string
 	Position string
 }
+
+type GetActiveEmployeeByIDQuery struct {
+	ID int64
+}

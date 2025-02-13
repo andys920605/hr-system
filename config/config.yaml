@@ -13,3 +13,6 @@ mysql:
   database: hr
   maxidle:  5
   maxopen:  10
+redis:
+  cluster:
+    addr:

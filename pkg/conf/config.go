@@ -27,6 +27,11 @@ type Config struct {
 		MaxIdle  int    `validate:"required"`
 		MaxOpen  int    `validate:"required"`
 	}
+	Redis struct {
+		Cluster struct {
+			Addr string `validate:"required"`
+		}
+	}
 }
 
 func NewConfig() (*Config, error) {

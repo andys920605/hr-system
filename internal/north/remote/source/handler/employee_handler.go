@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -47,4 +48,22 @@ func (h *EmployeeHandler) Create(c *gin.Context) {
 	}
 
 	template_response.OK(nil).To(c, http.StatusOK)
+}
+
+func (h *EmployeeHandler) GetActiveEmployeeByID(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		_ = c.Error(errors.InvalidRequest.New("invalid id: must be an integer"))
+		return
+	}
+	cmd := message.GetActiveEmployeeByIDQuery{
+		ID: id,
+	}
+	employee, err := h.employeeAppService.GetActiveEmployeeByID(c.Request.Context(), cmd)
+	if err != nil {
+		_ = c.Error(errors.InternalServerError.Wrap(err, "internal server error"))
+		return
+	}
+
+	template_response.OK(employee).To(c, http.StatusOK)
 }

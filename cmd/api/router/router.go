@@ -39,4 +39,5 @@ func (r *Router) Register(engine *gin.Engine) {
 	normal := engine.Group("/srv", r.interceptorHandler)
 
 	normal.POST("/employees", r.employeeHandler.Create)
+	normal.GET("/employees/:id", r.employeeHandler.GetActiveEmployeeByID)
 }

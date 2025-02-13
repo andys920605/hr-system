@@ -2,9 +2,11 @@
 package injection
 
 import (
+	"context"
 	_ "time/tzdata"
 
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/redis/go-redis/v9"
 
 	domain_service "github.com/andys920605/hr-system/internal/domain/service"
 	"github.com/andys920605/hr-system/internal/north/local/appservice"
@@ -29,8 +31,10 @@ func New() *Injection {
 	snowflake.Init(logger)
 
 	mysqlxClient := initMysqlClient(config, logger)
+	redisClient := initRedisClusterClient(config, logger)
+
 	employeeDao := employee_dao.NewEmployeeDao(mysqlxClient)
-	employeeRep := employee_rep.NewEmployeeRepository(employeeDao)
+	employeeRep := employee_rep.NewEmployeeRepository(employeeDao, redisClient)
 	employeeDomainSvc := domain_service.NewEmployeeDomainService(logger, employeeRep)
 	employeeAppSvc := appservice.NewEmployeeAppService(logger, employeeDomainSvc)
 
@@ -72,13 +76,13 @@ func initMysqlClient(config *conf.Config, logger *logging.Logging) *mysqlx.Clien
 	return client
 }
 
-// func initRedisClusterClient(config *conf.Config, logger *logging.Logging) *redis.ClusterClient {
-// 	client := redis.NewClusterClient(&redis.ClusterOptions{
-// 		Addrs: []string{config.Google.Redis.Cluster.Addr},
-// 	})
-// 	if _, err := client.Ping(context.Background()).Result(); err != nil {
-// 		logger.Emergencyf("failed to initialize redis cluster client: %v", err)
-// 	}
-// 	logger.Infof("redis cluster client initialized")
-// 	return client
-// }
+func initRedisClusterClient(config *conf.Config, logger *logging.Logging) *redis.ClusterClient {
+	client := redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs: []string{config.Redis.Cluster.Addr},
+	})
+	if _, err := client.Ping(context.Background()).Result(); err != nil {
+		logger.Emergencyf("failed to initialize redis cluster client: %v", err)
+	}
+	logger.Infof("redis cluster client initialized")
+	return client
+}
