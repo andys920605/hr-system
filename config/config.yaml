@@ -17,3 +17,6 @@ redis:
   cluster:
     addr:
     port:
+seed:
+  data:
+    enabled:

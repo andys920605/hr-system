@@ -33,6 +33,11 @@ type Config struct {
 			Port string `validate:"required"`
 		}
 	}
+	Seed struct {
+		Data struct {
+			Enabled bool `validate:"required"`
+		}
+	}
 }
 
 func NewConfig() (*Config, error) {

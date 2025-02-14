@@ -14,6 +14,7 @@ import (
 	employee_rep "github.com/andys920605/hr-system/internal/south/adapter/repository/employee"
 	"github.com/andys920605/hr-system/pkg/conf"
 	"github.com/andys920605/hr-system/pkg/logging"
+	"github.com/andys920605/hr-system/pkg/migration"
 	"github.com/andys920605/hr-system/pkg/mysqlx"
 	"github.com/andys920605/hr-system/pkg/snowflake"
 )
@@ -31,6 +32,8 @@ func New() *Injection {
 	snowflake.Init(logger)
 
 	mysqlxClient := initMysqlClient(config, logger)
+	migrate(mysqlxClient, config, logger)
+
 	redisClient := initRedisClusterClient(config, logger)
 
 	employeeDao := employee_dao.NewEmployeeDao(mysqlxClient)
@@ -86,4 +89,15 @@ func initRedisClusterClient(config *conf.Config, logger *logging.Logging) *redis
 	}
 	logger.Infof("redis cluster client initialized")
 	return client
+}
+
+func migrate(client *mysqlx.Client, config *conf.Config, logger *logging.Logging) {
+	if err := migration.AutoMigrate(client.DB); err != nil {
+		logger.Emergencyf("failed to auto migrate")
+	}
+	if config.Seed.Data.Enabled {
+		migration.SeedData(client.DB, logger)
+	}
+
+	return
 }
